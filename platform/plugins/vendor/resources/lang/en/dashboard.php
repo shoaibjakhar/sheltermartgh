@@ -97,4 +97,6 @@ return [
     'approved_properties'        => 'Approved properties',
     'pending_approve_properties' => 'Pending approve properties',
     'rejected_properties'        => 'Rejected properties',
+    'referrar_users'        	 => 'Your Referrar Users',
+    'referral_commission'        => 'Your Referral Commission',
 ];

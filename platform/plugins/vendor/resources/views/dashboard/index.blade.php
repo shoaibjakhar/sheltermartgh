@@ -75,6 +75,32 @@
                           </div>
                       </div>
                   </div>
+                  <div class="col-md-4">
+                      <div class="white">
+                          <div class="br2 pa3 bg-light-silver mb3" style="box-shadow: 0 1px 1px #ccc;">
+                              <div class="media-body">
+                                  <div class="f3">
+                                      <span class="fw6">0</span>
+                                      <span class="fr"><i class="fa fa-users"></i></span>
+                                  </div>
+                                  <p>{{ trans('plugins/vendor::dashboard.referrar_users') }}</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4">
+                      <div class="white">
+                          <div class="br2 pa3 bg-light-silver mb3" style="box-shadow: 0 1px 1px #ccc;">
+                              <div class="media-body">
+                                  <div class="f3">
+                                      <span class="fw6">0</span>
+                                      <span class="fr"><i class="fa fa-rocket"></i></span>
+                                  </div>
+                                  <p>{{ trans('plugins/vendor::dashboard.referral_commission') }}</p>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
               </div>
             <activity-log-component default-active-tab="activity-logs"></activity-log-component>
           </div>
