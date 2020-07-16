@@ -43,6 +43,16 @@
                   <i class="far fa-credit-card mr1"></i>{{ trans('plugins/vendor::vendor.buy_credits') }} <span class="badge badge-info">{{ auth()->guard('vendor')->user()->credits }} {{ trans('plugins/vendor::vendor.credits') }}</span>
               </a>
           </li>
+          <li>
+              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="#" title="{{ trans('plugins/vendor::vendor.referrals') }}">
+                  <i class="far fa-user-circle mr1"></i>{{ trans('plugins/vendor::vendor.referrals') }}
+              </a>
+          </li>
+          <li>
+              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="#" title="{{ trans('plugins/vendor::vendor.referral_commission') }}">
+                  <i class="fa fa-rocket mr1"></i>{{ trans('plugins/vendor::vendor.referral_commission') }}
+              </a>
+          </li>
           {!! apply_filters(VENDOR_TOP_MENU_FILTER, null) !!}
               <li>
                   <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="{{ route('public.vendor.properties.index') }}" title="{{ trans('plugins/vendor::property.properties') }}">

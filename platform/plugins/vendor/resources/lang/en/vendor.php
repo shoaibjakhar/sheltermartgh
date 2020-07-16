@@ -26,4 +26,6 @@ return [
     'packages'                   => 'Packages',
     'transactions'               => 'Transactions',
     'subscribe_package'          => 'Subscribe package ":name"',
+    'referrals'                  => 'Referrals',
+    'referral_commission'        => 'Referrals Commission',
 ];
