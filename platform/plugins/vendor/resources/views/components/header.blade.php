@@ -44,12 +44,12 @@
               </a>
           </li>
           <li>
-              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="#" title="{{ trans('plugins/vendor::vendor.referrals') }}">
+              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="{{ route('public.vendor.referrals') }}" title="{{ trans('plugins/vendor::vendor.referrals') }}">
                   <i class="far fa-user-circle mr1"></i>{{ trans('plugins/vendor::vendor.referrals') }}
               </a>
           </li>
           <li>
-              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="#" title="{{ trans('plugins/vendor::vendor.referral_commission') }}">
+              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="{{ route('public.vendor.referral_commission') }}" title="{{ trans('plugins/vendor::vendor.referral_commission') }}">
                   <i class="fa fa-rocket mr1"></i>{{ trans('plugins/vendor::vendor.referral_commission') }}
               </a>
           </li>

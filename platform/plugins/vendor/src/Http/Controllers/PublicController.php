@@ -155,6 +155,32 @@ class PublicController extends Controller
         SeoHelper::setTitle(trans('plugins/vendor::vendor.packages'));
 
         return view('plugins/vendor::settings.package');
+    }    
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getReferrals()
+    {
+        SeoHelper::setTitle(trans('plugins/vendor::vendor.referrals'));
+
+        $data['referals'] = ['name' => 'shoaib'];
+
+
+        return view('plugins/vendor::settings.referrals', $data);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getReferralCommission()
+    {
+        SeoHelper::setTitle(trans('plugins/vendor::vendor.referrals_commission'));
+
+        $data['referals'] = ['name' => 'shoaib'];
+
+
+        return view('plugins/vendor::settings.referral_commission', $data);
     }
 
     /**

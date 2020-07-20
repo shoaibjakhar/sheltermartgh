@@ -119,6 +119,15 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                     'as'   => 'packages',
                     'uses' => 'PublicController@getPackages',
                 ]);
+                Route::get('referrals', [
+                    'as'   => 'referrals',
+                    'uses' => 'PublicController@getReferrals',
+                ]);
+
+                Route::get('referrals_commission', [
+                    'as'   => 'referral_commission',
+                    'uses' => 'PublicController@getReferralCommission',
+                ]);
 
                 Route::get('transactions', [
                     'as'   => 'transactions',

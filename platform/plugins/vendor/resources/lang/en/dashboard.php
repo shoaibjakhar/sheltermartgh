@@ -71,6 +71,8 @@ return [
     // Security
     'security_title'            => 'Security',
     'packages_title'            => 'Packages',
+    'referrals_title'            => 'Referrals',
+    'referrals_commission_title' => 'Referrals Commission',
     'transactions_title'        => 'Transactions',
     'current_password'          => 'Current password',
     'password_new'              => 'New password',
