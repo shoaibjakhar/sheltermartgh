@@ -2592,6 +2592,9 @@ footer .copyright {
 	.videoch {
 		height: 250px!important
 	}
+	.nav-title{
+		margin-left: 0 !important;
+	}
 }
 
 @media (min-width:576px) {
@@ -2616,6 +2619,9 @@ footer .copyright {
 	}
 	.videoch {
 		height: 250px!important
+	}
+	.nav-title{
+		margin-left: 0 !important;
 	}
 }
 
@@ -2903,6 +2909,9 @@ footer .copyright {
 	}
 	.itemnews .title {
 		font-size: 20px
+	}
+	.nav-title{
+		margin-left: 0 !important;
 	}
 }
 
@@ -3287,6 +3296,9 @@ footer .copyright {
 		float: left;
 		margin-top: -20px
 	}
+	.nav-title{
+		margin-left: 0 !important;
+	}
 }
 
 .box_shadow {
@@ -3614,6 +3626,9 @@ p:empty {
 		padding-left: 15px;
 		padding-right: 15px
 	}
+	.nav-title{
+		margin-left: 0 !important;
+	}
 }
 
 body .cookie-consent {
@@ -3631,4 +3646,8 @@ body .cookie-consent .cookie-consent-body {
 	margin-top: 9px;
 	color: var(--primary-color);
 	margin-left: 100px;
+}
+
+.navbar-light .navbar-brand{
+	float: left;
 }

@@ -32,6 +32,17 @@
                                 @endif
                             </div>
                             <div class="form-group">
+                                <input id="referral_id" type="text"
+                                       class="form-control{{ $errors->has('referral_id') ? ' is-invalid' : '' }}"
+                                       name="referral_id" value="{{ old('referral_id') }}" required
+                                       placeholder="{{ trans('plugins/vendor::dashboard.referral_id') }}">
+                                @if ($errors->has('referral_id'))
+                                    <span class="invalid-feedback">
+                                    <strong>{{ $errors->first('referral_id') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="form-group">
                                 <input id="email" type="email"
                                        class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
                                        name="email" value="{{ old('email') }}" required

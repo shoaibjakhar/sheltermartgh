@@ -198,6 +198,7 @@ class RegisterController extends Controller
         return $this->vendorRepository->create([
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
+            'referral_id'=> $data['referral_id'],
             'email'      => $data['email'],
             'password'   => bcrypt($data['password']),
         ]);
