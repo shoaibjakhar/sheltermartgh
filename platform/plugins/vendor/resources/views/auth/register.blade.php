@@ -31,19 +31,23 @@
                                     </span>
                                 @endif
                             </div>             
-                            @if( isset($_GET['ref_id']) && $_GET['ref_id'] !='' )
+
+                            <?php $ref_id = isset($_GET['ref_id']) ? $_GET['ref_id'] :''; ?>
+
                                 <div class="form-group">
                                     <input id="referral_id" type="text"
-                                           class="form-control{{ $errors->has('referral_id') ? ' is-invalid' : '' }}"
-                                           name="referral_id" value="{{ $_GET['ref_id'] }}"
-                                           placeholder="{{ trans('plugins/vendor::dashboard.referral_id') }}" readonly="true">
+                                           class="form-control{{ $errors->has('referral_id') ? ' is-invalid' : '' }}" 
+                                           name="referral_id" value="{{ $ref_id }}" required
+                                           placeholder="{{ trans('plugins/vendor::dashboard.referral_id') }}">
                                     @if ($errors->has('referral_id'))
                                         <span class="invalid-feedback">
                                         <strong>{{ $errors->first('referral_id') }}</strong>
                                         </span>
                                     @endif
+                                    <span class="invalid-feedback referral_invalid_feedback">
+                                        <strong>Referral ID is invalid</strong>
+                                    </span> 
                                 </div>
-                            @endif
                             <div class="form-group">
                                 <input id="email" type="email"
                                        class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"

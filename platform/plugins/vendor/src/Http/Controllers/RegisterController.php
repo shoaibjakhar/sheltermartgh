@@ -152,7 +152,7 @@ class RegisterController extends Controller
      * @param BaseHttpResponse $response
      * @return BaseHttpResponse
      */
-    public function register(Request $request, BaseHttpResponse $response)
+    public function register(Request $request, BaseHttpResponse $response, VendorInterface $vendorRepository)
     {
         $this->validator($request->input())->validate();
 
@@ -182,6 +182,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'first_name' => 'required|max:120',
             'last_name'  => 'required|max:120',
+            'referral_id'=> 'required|max:6|min:6',
             'email'      => 'required|email|max:255|unique:vendors',
             'password'   => 'required|min:6|confirmed',
         ]);
@@ -211,4 +212,29 @@ class RegisterController extends Controller
     {
         return view('plugins/vendor::auth.verify');
     }
+
+    public function verify_referral_id(Request $request, VendorInterface $vendorRepository){
+
+        $response = array(
+          'status' => false,
+        );
+
+        $conditions = ['referral_id' => $request->ref_id];
+
+        $vendor = $vendorRepository->select(['*'], $conditions)->get()->toArray();
+
+
+        if (!empty($vendor[0]['referral_id'])) {
+        
+            $response['status'] = true;
+
+        } else {
+            
+            $response['message'] = '<strong> Referral ID is invalid </strong>';
+        }
+
+      return response()->json($response); 
+    
+    }
+    
 }

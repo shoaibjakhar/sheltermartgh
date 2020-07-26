@@ -41,3 +41,15 @@ if (!function_exists('dynamic_sidebar')) {
         return Theme::renderWidgetGroup($sidebarId);
     }
 }
+
+function pre($data){
+
+    echo "<pre>"; print_r($data); echo "</pre>";
+
+}
+
+function pre_d($data){
+
+    echo "<pre>"; print_r($data); echo "</pre>"; die();
+
+}

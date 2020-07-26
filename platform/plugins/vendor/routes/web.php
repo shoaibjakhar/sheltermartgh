@@ -56,7 +56,7 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                 Route::get('register', 'RegisterController@showRegistrationForm')->name('register');
                 Route::post('register', 'RegisterController@register')->name('register.post');
                 Route::post('register/{ref_id}', 'RegisterController@register')->name('register.post');
-
+                Route::post('verify_referral_id', 'RegisterController@verify_referral_id')->name('register.verify_referral_id');
                 Route::get('verify', 'RegisterController@getVerify')->name('verify');
 
                 Route::get('password/request',

@@ -164,12 +164,11 @@ class PublicController extends Controller
     {
         SeoHelper::setTitle(trans('plugins/vendor::vendor.referrals'));
 
-        
-        $my_vendor_id_my_referral_id = auth()->guard('vendor')->user()->id;
-        $data['my_referrals'] = Vendor::where('referral_id', $my_vendor_id_my_referral_id)
-               ->get();
+        $vendor_id = auth()->guard('vendor')->user()->id;
+        $data['my_referrals'] = Vendor::where('referral_id', $vendor_id)->get();
 
-        $data['referral_link'] = url('/').'/register'.'?ref_id='.$my_vendor_id_my_referral_id;
+        $my_refer_id = auth()->guard('vendor')->user()->refer_id;
+        $data['referral_link'] = url('/').'/register'.'?ref_id='.$my_refer_id;
 
 
         return view('plugins/vendor::settings.referrals', $data);
