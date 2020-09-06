@@ -106,17 +106,35 @@ class VendorServiceProvider extends ServiceProvider
                 ])
                 ->registerItem([
                     'id'          => 'cms-plugins-package',
-                    'priority'    => 23,
+                    'priority'    => 24,
                     'parent_id'   => null,
                     'name'        => 'plugins/vendor::package.name',
                     'icon'        => 'fas fa-money-check-alt',
                     'url'         => route('package.index'),
                     'permissions' => ['package.index'],
-                ]);
+                ])
+                 ->registerItem([
+                    'id'          => 'cms-plugins-vendor-landlord',
+                    'priority'    => 23,
+                    'parent_id'   => null,
+                    'name'        => _('Landlord Management'),
+                    'icon'        => 'fa fa-chess-king',
+                    'url'         => route('landlord.index','type=landlord'),
+                    'permissions' => ['landlord.index'],
+                ])
+                ->registerItem([
+                    'id'          => 'cms-plugins-vendor-landlord-item',
+                    'priority'    => 1,
+                    'parent_id'   => 'cms-plugins-vendor-landlord',
+                    'name'        => _('Landlord list'),
+                    'icon'        => null,
+                    'url'         => route('landlord.index','type=landlord'),
+                    'permissions' => ['landlord.index'],
+                ])
+               ;
 
         });
-
-        $this->app->register(EventServiceProvider::class);
+         $this->app->register(EventServiceProvider::class);
 
         add_filter(IS_IN_ADMIN_FILTER, [$this, 'setInAdmin'], 20, 0);
 

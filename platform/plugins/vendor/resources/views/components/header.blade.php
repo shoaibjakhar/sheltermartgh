@@ -66,6 +66,11 @@
                   </a>
               </li>
           @endif
+           <li>
+                <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="{{ route('public.vendor.settings') }}" title="{{ trans('plugins/vendor::dashboard.header_account_link') }}">
+                    <i class="fas fa-user-circle mr-2"></i>{{ trans('plugins/vendor::dashboard.header_account_link') }}
+                </a>
+            </li>
           <li>
             <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db" style="text-decoration: none; line-height: 32px;" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" title="{{ trans('plugins/vendor::dashboard.header_logout_link') }}">
               <i class="fas fa-sign-out-alt mr1"></i><span class="dn-ns">{{ trans('plugins/vendor::dashboard.header_logout_link') }}</span>

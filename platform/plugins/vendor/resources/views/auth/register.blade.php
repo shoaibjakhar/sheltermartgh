@@ -33,21 +33,34 @@
                             </div>             
 
                             <?php $ref_id = isset($_GET['ref_id']) ? $_GET['ref_id'] :''; ?>
+                            <div class="form-group">
+                                <input id="referral_id" type="text"
+                                       class="form-control{{ $errors->has('referral_id') ? ' is-invalid' : '' }}" 
+                                       name="referral_id" value="{{ $ref_id }}" required
+                                       placeholder="{{ trans('plugins/vendor::dashboard.referral_id') }}">
+                                @if ($errors->has('referral_id'))
+                                    <span class="invalid-feedback">
+                                    <strong>{{ $errors->first('referral_id') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control {{ $errors->has('type') ? ' is-invalid' : '' }}" name="type">
+                                    <option value="" >{{ trans('plugins/vendor::dashboard.vendor_type') }}</option>
+                                    <option value="agent" 
+                                    {{ (old("type")=='agent')?'selected':'' }}>Agent</option>
+                                    <option value="landlord" 
+                                    {{ (old("type")=='landlord')?'selected':'' }}>Landlord</option>
 
-                                <div class="form-group">
-                                    <input id="referral_id" type="text"
-                                           class="form-control{{ $errors->has('referral_id') ? ' is-invalid' : '' }}" 
-                                           name="referral_id" value="{{ $ref_id }}" required
-                                           placeholder="{{ trans('plugins/vendor::dashboard.referral_id') }}">
-                                    @if ($errors->has('referral_id'))
-                                        <span class="invalid-feedback">
-                                        <strong>{{ $errors->first('referral_id') }}</strong>
-                                        </span>
-                                    @endif
-                                    <span class="invalid-feedback referral_invalid_feedback">
-                                        <strong>Referral ID is invalid</strong>
-                                    </span> 
-                                </div>
+                                </select>
+
+                               
+                                @if ($errors->has('type'))
+                                    <span class="invalid-feedback">
+                                    <strong>{{ $errors->first('type') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <div class="form-group">
                                 <input id="email" type="email"
                                        class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"

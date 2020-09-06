@@ -6,6 +6,8 @@ use Botble\Base\Supports\Avatar;
 use Botble\Media\Models\MediaFile;
 use Botble\RealEstate\Models\Property;
 use Botble\Vendor\Notifications\ResetPasswordNotification;
+use Botble\Vendor\Models\PaymentMethod;
+use Botble\Vendor\Models\Vendor;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -34,9 +36,12 @@ class Vendor extends Authenticatable
         'first_name',
         'last_name',
         'referral_id',
+        'refer_id',
         'email',
         'password',
         'avatar_id',
+        'idcard_id',
+        'vendor_type',
         'dob',
         'phone',
         'description',
@@ -85,11 +90,27 @@ class Vendor extends Authenticatable
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function idcard()
+    {
+        return $this->hasOne(MediaFile::class,'id','idcard_id');
+    }
+
+    /**
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
     public function getAvatarUrlAttribute()
     {
         return $this->avatar->url ? Storage::url($this->avatar->url) : (new Avatar)->create($this->getFullName())->toBase64();
+    }
+
+    /**
+     * @return \Illuminate\Contracts\Routing\UrlGenerator|string
+     */
+    public function getIDcardUrlAttribute()
+    {
+        return  ($this->idcard->url)?Storage::url($this->idcard->url) : (new Avatar)->create($this->getFullName())->toBase64();
     }
 
     /**
@@ -160,4 +181,37 @@ class Vendor extends Authenticatable
     {
         return $this->belongsToMany(Package::class, 'vendor_packages', 'vendor_id', 'package_id');
     }
+
+    /**
+     * @return hasOne
+     */
+    public function bankAccount()
+    {
+        return $this->hasOne(PaymentMethod::class, 'user_id')->where('type','bank_account');
+    }
+
+    /**
+     * @return hasOne
+     */
+    public function mobileMoney()
+    {
+        return $this->hasOne(PaymentMethod::class, 'user_id')->where('type','mobile_money');
+    }
+
+    /**
+     * @return hasOne
+     */
+    public function otherAccount()
+    {
+        return $this->hasOne(PaymentMethod::class, 'user_id')->where('type','other');
+    }
+
+    public function children() {
+        return $this->hasMany(Vendor::class,'referral_id','refer_id');
+    }
+
+    public function parent() {
+        return $this->belongsTo(Vendor::class,'refer_id','referral_id');
+    }
+    
 }

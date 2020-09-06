@@ -8,6 +8,7 @@ use Botble\Vendor\Http\Resources\TransactionResource;
 use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Vendor\Models\Vendor;
 use Botble\Vendor\Models\Package;
+use Botble\Vendor\Models\PaymentMethod;
 use Botble\Vendor\Repositories\Interfaces\TransactionInterface;
 use Botble\Vendor\Http\Resources\ActivityLogResource;
 use Botble\Base\Enums\BaseStatusEnum;
@@ -16,6 +17,7 @@ use Botble\Payment\Repositories\Interfaces\PaymentInterface;
 use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\Vendor\Http\Resources\PackageResource;
 use Botble\Vendor\Http\Resources\VendorResource;
+use Botble\Referral\Models\Commission;
 use Botble\Vendor\Repositories\Interfaces\PackageInterface;
 use File;
 use Illuminate\Contracts\View\Factory;
@@ -29,6 +31,7 @@ use Botble\Vendor\Http\Requests\SettingRequest;
 use Botble\Vendor\Http\Requests\UpdatePasswordRequest;
 use Botble\Vendor\Repositories\Interfaces\VendorActivityLogInterface;
 use Botble\Vendor\Repositories\Interfaces\VendorInterface;
+use Botble\Referral\Models\Post;
 use Exception;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Controller;
@@ -124,7 +127,41 @@ class PublicController extends Controller
                 return redirect()->route('public.vendor.settings');
             }
         }
+        if($request->file('idcard-file')){
+            $validator = Validator::make($request->all(), [
+                'idcard-file' => 'required|image|mimes:jpg,jpeg,png',
+            ]);
 
+            if ($validator->fails()) {
+                return redirect()->route('public.vendor.settings');
+            }
+
+           //upload idcard
+            try {
+                $account = Auth::guard('vendor')->user();
+
+                $result = RvMedia::handleUpload($request->file('idcard-file'), 0, 'vendors');
+
+                if ($result['error'] != false) {
+                    return $response->setError()->setMessage($result['message']);
+                }
+
+                $file = $result['data'];
+
+                $this->fileRepository->forceDelete(['id' => $account->idcard_id]);
+
+                $account->idcard_id = $file->id;
+
+                $this->accountRepository->createOrUpdate($account);
+               
+            } catch (Exception $ex) {
+               return $response
+            ->setNextUrl(route('public.vendor.settings'))
+            ->setMessage(trans('plugins/vendor::vendor.update_profile_error'));
+            }
+        }    
+       //end of upload idcard
+       
         $this->accountRepository->createOrUpdate($request->except('email'),
             ['id' => auth()->guard('vendor')->user()->getKey()]);
 
@@ -164,13 +201,12 @@ class PublicController extends Controller
     {
         SeoHelper::setTitle(trans('plugins/vendor::vendor.referrals'));
 
-        $vendor_id = auth()->guard('vendor')->user()->id;
-        $data['my_referrals'] = Vendor::where('referral_id', $vendor_id)->get();
-
+        $refer_id = auth()->guard('vendor')->user()->refer_id;
+        $data['my_referrals'] = Vendor::where('referral_id', $refer_id)->get();
+        
         $my_refer_id = auth()->guard('vendor')->user()->refer_id;
         $data['referral_link'] = url('/').'/register'.'?ref_id='.$my_refer_id;
-
-
+        
         return view('plugins/vendor::settings.referrals', $data);
     }
 
@@ -180,10 +216,20 @@ class PublicController extends Controller
     public function getReferralCommission()
     {
         SeoHelper::setTitle(trans('plugins/vendor::vendor.referrals_commission'));
-
-        $data['referals'] = ['name' => 'shoaib'];
-
-
+      
+        $data['parent']=$parent=Vendor::where('refer_id',auth()->guard('vendor')->user()->referral_id)->first();
+     
+        $vendors=Vendor::where('referral_id',auth()->guard('vendor')->user()->refer_id)->orWhere('id',auth()->guard('vendor')->user()->id)->get();
+      
+        $users=[];
+        foreach ($vendors as $key => $value) {
+            $users[]=$value->id;
+        }
+      
+        $commission=Commission::whereIn('reference_id',$users)
+            ->get();
+      
+        $data['commission'] = $commission;
         return view('plugins/vendor::settings.referral_commission', $data);
     }
 
@@ -418,13 +464,14 @@ class PublicController extends Controller
      */
     public function postUpload(Request $request, BaseHttpResponse $response)
     {
-        $validator = Validator::make($request->all(), [
-            'file.0' => 'required|image|mimes:jpg,jpeg,png',
-        ]);
+        echo "Requeat all === "; pre($request->all());
+        // $validator = Validator::make($request->all(), [
+        //     'file.0' => 'required|image|mimes:jpg,jpeg,png',
+        // ]);
 
-        if ($validator->fails()) {
-            return $response->setError()->setMessage($validator->getMessageBag()->first());
-        }
+        // if ($validator->fails()) {
+        //     return $response->setError()->setMessage($validator->getMessageBag()->first());
+        // }
 
         $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'vendors');
 
@@ -483,5 +530,136 @@ class PublicController extends Controller
         ]);
 
         return $response->setData(TransactionResource::collection($transactions))->toApiResponse();
+    }
+    //new updated work
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function getPaymentMethod(Request $request)
+    {
+
+        SeoHelper::setTitle(trans('plugins/vendor::vendor.account_payment_'.$request->input('type')));
+
+        $selectedtype=$request->input('type');
+        if($request->input('type')=='bank'){
+            $user = auth()->guard('vendor')->user();
+            return view('plugins/vendor::settings.bank_payment', compact('user','selectedtype'));
+        }
+        if($request->input('type')=='mobileMoney')
+        {
+            $user = auth()->guard('vendor')->user();
+            return view('plugins/vendor::settings.mobile_money', compact('user','selectedtype'));
+        }
+        if($request->input('type')=='other')
+        {
+            $user = auth()->guard('vendor')->user();
+            return view('plugins/vendor::settings.other_payment', compact('user','selectedtype'));
+        }
+        
+
+    }
+
+    /**
+     * @param SettingRequest $request
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function postPaymentMethod(Request $request,BaseHttpResponse $response)
+    {
+        $type=$request->input('type');
+        $payment_type='';
+        if($type=='bank'){
+        $validator = Validator::make($request->input(), [
+                'account_no' => 'required',
+                'account_holder' => 'required',
+                'bank_name' => 'required',
+                'bank_code' => 'required',
+        ]);
+        }
+        if($type=='mobileMoney'){
+        $validator = Validator::make($request->input(), [
+                'account_no' => 'required',
+                'account_holder' => 'required',
+                'first_name' => 'required',
+                'last_name' => 'required',
+        ]);
+        }  
+        if($type=='other'){
+        $validator = Validator::make($request->input(), [
+                'account_no' => 'required',
+                'account_holder' => 'required',
+                'bank_name' => 'required',
+                'bank_code' => 'required',
+        ]);
+        }  
+        if ($validator->fails()) {
+            return redirect()->route('public.vendor.payment_method','type='.$type);
+        }
+        $user=auth()->guard('vendor')->user();
+        $store['first_name']=($request->input('first_name'))?$request->input('first_name'):auth()->guard('vendor')->user()->first_name;
+        $store['last_name']=($request->input('last_name'))?$request->input('last_name'):auth()->guard('vendor')->user()->last_name;
+        $store['account_holder']=$request->input('account_holder');
+        $store['account_number']=$request->input('account_no');
+        $store['bank_name']=($request->input('bank_name'))?$request->input('bank_name'):'';
+        $store['bank_code']=($request->input('bank_code'))?$request->input('bank_code'):'';
+        $store['user_id']=$user->getKey();
+        $TYPE=strtoupper($type);
+        $status='unactive';
+        if($request->input('status'))
+        {
+            $status='active';
+            PaymentMethod::where('user_id',($user->id))->update(['status'=>'unactive']);
+        }
+        $store['status']=$status;    
+        if($TYPE=='BANK')
+        {
+            $store['type']=BaseStatusEnum::BANK;
+
+            if($user->bankAccount)
+            {
+                PaymentMethod::where('id',($user->bankAccount->id))->update($store);
+            }
+            else
+            {
+                PaymentMethod::create($store);  
+            }    
+        }elseif($TYPE=='MOBILEMONEY'){
+            $store['type']=BaseStatusEnum::MOBILEMONEY;
+            if($user->mobileMoney)
+            {
+                PaymentMethod::where('id',($user->mobileMoney->id))->update($store);
+            }
+            else
+            {
+                PaymentMethod::create($store);  
+            } 
+        }elseif($TYPE=='OTHER'){
+            $store['type']=BaseStatusEnum::OTHER;
+            if($user->other)
+            {
+                PaymentMethod::where('id',($user->other->id))->update($store);
+            }
+            else
+            {
+                PaymentMethod::create($store);  
+            }
+        }
+       
+        return $response
+            ->setNextUrl(route('public.vendor.payment_method','type='.$type))
+            ->setMessage(trans('plugins/vendor::vendor.update_profile_success'));
+    }
+    public function getCommession(Request $request)
+    {
+        $commession=Post::where('property_type',$request->input('type'))->first();
+        $amount=$request->input('amount');
+        $data['comession']=$comession=round($amount/100*$commession->comession,2);
+        $data['admin_commes']=round($comession/100*$commession->admin_comm,2);
+        $data['client_commes']=round($comession/100*$commession->client_comm,2);
+        $data['vendor_commes']=round($comession/100*$commession->vendor_comm,2);
+        $data['amount']=round($amount-$comession,2);
+        return json_encode($data);
     }
 }

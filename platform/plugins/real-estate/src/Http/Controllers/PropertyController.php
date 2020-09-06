@@ -22,6 +22,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
+use Botble\Media\Repositories\Interfaces\MediaFileInterface;
+use RvMedia;
 
 class PropertyController extends BaseController
 {
@@ -69,6 +71,18 @@ class PropertyController extends BaseController
     }
 
     /**
+     * @param PropertyTable $dataTable
+     * @return JsonResponse|View
+     * @throws Throwable
+     */
+    public function getLandProperty(PropertyTable $dataTable)
+    {
+        page_title()->setTitle(_('Landlord Property'));
+        $dataTable->setPrivateType('landlord');
+        return $dataTable->renderTable();
+    }
+
+    /**
      * @param FormBuilder $formBuilder
      * @return string
      */
@@ -95,7 +109,6 @@ class PropertyController extends BaseController
             'expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days')),
             'images'      => json_encode($request->input('images', [])),
         ]);
-
         $property = $this->propertyRepository->getModel();
         $property = $property->fill($request->input());
         $property->moderation_status = $request->input('moderation_status');
@@ -149,7 +162,22 @@ class PropertyController extends BaseController
         $property->images = json_encode($request->input('images', []));
         $property->moderation_status = $request->input('moderation_status');
         $property->never_expired = $request->input('never_expired');
-
+        if($request->file('confirm_document'))
+        {   
+            foreach ($request->file('confirm_document') as $key => $file) {
+                
+                $result[] = RvMedia::handleUpload($file, 0, 'vendor');
+                if ($result[$key]['error'] != false) {
+                    return $response->setError()->setMessage($result['message']);
+                }
+            } 
+        }
+        $files=array();
+        foreach ($result as $f) {
+            $file=$f['data'];
+            $files[]=$file->id;
+        }
+        $property->confirm_documnet = json_encode($files);
         $this->propertyRepository->createOrUpdate($property);
 
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));

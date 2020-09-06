@@ -22,6 +22,8 @@ use Illuminate\Contracts\Config\Repository;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use SeoHelper;
+use Botble\Media\Repositories\Interfaces\MediaFileInterface;
+use RvMedia;
 
 class PropertyController extends Controller
 {
@@ -39,6 +41,7 @@ class PropertyController extends Controller
      * @var VendorActivityLogInterface
      */
     protected $activityLogRepository;
+    protected $fileRepository;
 
     /**
      * PublicController constructor.
@@ -51,11 +54,13 @@ class PropertyController extends Controller
         Repository $config,
         VendorInterface $vendorRepository,
         PropertyInterface $propertyRepository,
-        VendorActivityLogInterface $vendorActivityLogRepository
+        VendorActivityLogInterface $vendorActivityLogRepository,
+        MediaFileInterface $fileRepository
     ) {
         $this->vendorRepository = $vendorRepository;
         $this->propertyRepository = $propertyRepository;
         $this->activityLogRepository = $vendorActivityLogRepository;
+        $this->fileRepository=$fileRepository;
 
         Assets::setConfig($config->get('plugins.vendor.assets'));
     }
@@ -85,7 +90,6 @@ class PropertyController extends Controller
         }
 
         SeoHelper::setTitle(__('Write a property'));
-
         return $formBuilder->create(PropertyForm::class)->renderForm();
     }
 
@@ -100,7 +104,7 @@ class PropertyController extends Controller
         if (!Auth::guard('vendor')->user()->canPost()) {
             abort(403);
         }
-
+ 
         $request->merge(['expire_date' => now()->addDays(45)]);
 
         /**
@@ -109,8 +113,26 @@ class PropertyController extends Controller
         $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
             'author_id'   => auth()->guard('vendor')->user()->getKey(),
             'author_type' => Vendor::class,
+            'document'=>'',
         ]));
-
+        $result = array();
+        if($request->file('document'))
+        {   
+            foreach ($request->file('document') as $key => $file) {
+                
+                $result[] = RvMedia::handleUpload($file, 0, 'vendor');
+                if ($result[$key]['error'] != false) {
+                    return $response->setError()->setMessage($result['message']);
+                }
+            } 
+        }
+        $files=array();
+        foreach ($result as $f) {
+            $file=$f['data'];
+            $files[]=$file->id;
+        }
+        $property->document = json_encode($files);
+        $property->save();
         if ($property) {
             $property->features()->sync($request->input('features', []));
         }
@@ -182,6 +204,30 @@ class PropertyController extends Controller
             abort(404);
         }
 
+        if($request->file('document'))
+        {
+            $allFile=json_decode($property->document);
+            foreach ($allFile as $key => $value) {
+            
+                $this->fileRepository->forceDelete(['id' =>$value]);
+
+            }   
+            foreach ($request->file('document') as $key => $file) {
+                
+                $result[] = RvMedia::handleUpload($file, 0, 'vendor');
+                if ($result[$key]['error'] != false) {
+                    return $response->setError()->setMessage($result['message']);
+                }
+            }
+            $files=array();
+            foreach ($result as $f) {
+                $file=$f['data'];
+                $files[]=$file->id;
+            }
+            $property->document = json_encode($files);
+            $property->save(); 
+        }
+        
         $property->fill($request->except(['expire_date']));
 
         $this->propertyRepository->createOrUpdate($property);

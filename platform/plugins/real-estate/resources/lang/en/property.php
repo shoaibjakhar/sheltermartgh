@@ -15,6 +15,7 @@ return [
         'name'             => 'Title',
         'type'             => 'Type',
         'images'           => 'Images',
+        'document'           => 'Documnet',
         'button_add_image' => 'Add images',
         'location'         => 'Property location',
         'number_bedroom'   => 'Number bedrooms',

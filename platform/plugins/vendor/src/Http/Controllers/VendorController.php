@@ -40,10 +40,18 @@ class VendorController extends BaseController
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Throwable
      */
-    public function index(VendorTable $dataTable)
+    public function index(VendorTable $dataTable,Request $request)
     {
-        page_title()->setTitle(trans('plugins/vendor::vendor.name'));
+        
+        $type = $request->input('type');
+        if($type == 'vendor') {
+            page_title()->setTitle(trans('plugins/vendor::vendor.name'));
+       
+        } elseif($type == 'landlord') {
 
+            page_title()->setTitle(_('Landlord'));
+            $dataTable->setPrivateType($type);
+        }
         return $dataTable->renderTable();
     }
 

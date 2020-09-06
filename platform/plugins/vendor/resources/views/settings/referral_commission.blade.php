@@ -28,20 +28,51 @@
                   <div class="col-12">
                     <table class="table table-responsive">
                       <thead>
-                        <th>Id</th>
+                        <th>#</th>
+                        <th>Property</th>
+                        <th>Own Property Commission</th>
                         <th>Your Referrar User</th>
                         <th>Your Referral Commission</th>
                         <th>Status</th>
-                        <th>Action</th>
                       </thead>
                       <tbody>
+                        @if($commission->count()>0)
+                        @php
+                        $count=1;
+                        @endphp
+                        @foreach($commission AS $commisItem)
                         <tr>
-                          <td>0001</td>
-                          <td>Edith Appiah Kumi</td>
-                          <td>pegesinc@gmail.com</td>
-                          <td>Pending</td>
-                          <td>Action</td>
+                          <td>{{ str_pad($count++, 4, "0", STR_PAD_LEFT)}}</td>
+
+                          <td>{{ $commisItem->property->name }}</td>
+
+                          @if($commisItem->vendor->id==auth()->guard('vendor')->user()->id)
+                          <td>{{ $commisItem->client_commission }}</td>
+                          @else
+                          <td>0</td>
+                          @endif
+
+
+                          @if($commisItem->vendor->id!=auth()->guard('vendor')->user()->id)
+                          <td>{{ $commisItem->vendor->first_name.' '.$commisItem->vendor->last_name }}</td>
+                          @else
+                          <td>{{ ($parent)?$parent->first_name.' '.$parent->last_name:'No Referral' }}</td>
+                          @endif
+                            
+                          @if($commisItem->vendor->id!=auth()->guard('vendor')->user()->id)
+                          <td>{{ $commisItem->vendor_commission }}</td>
+                          @else
+                          <td>{{ ($parent)?$commisItem->vendor_commission:0 }}</td>
+                          <!-- <td>{{   $commisItem->vendor_commission }}</td> -->
+                          @endif
+                          <td>
+                            {{ ($commisItem->status=='clear')?'Paid':'Pending' }}
+                          </td>
+                          
                         </tr>
+                        @endforeach
+                        @endif
+                        
                       </tbody>
                     </table>
                   </div>

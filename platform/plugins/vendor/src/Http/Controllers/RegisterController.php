@@ -158,7 +158,7 @@ class RegisterController extends Controller
 
         event(new Registered($vendor = $this->create($request->input())));
 
-        if (setting('verify_account_email', config('plugins.vendor.general.verify_email'))) {
+        if (!setting('verify_account_email', config('plugins.vendor.general.verify_email'))) {
             $this->sendConfirmationToUser($vendor);
             return $this->registered($request, $vendor)
                 ?: $response->setNextUrl($this->redirectPath())->setMessage(trans('plugins/vendor::vendor.confirmation_info'));
@@ -183,6 +183,7 @@ class RegisterController extends Controller
             'first_name' => 'required|max:120',
             'last_name'  => 'required|max:120',
             'referral_id'=> 'required|max:6|min:6',
+            'type'       => 'required',
             'email'      => 'required|email|max:255|unique:vendors',
             'password'   => 'required|min:6|confirmed',
         ]);
@@ -200,6 +201,8 @@ class RegisterController extends Controller
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
             'referral_id'=> isset($data['referral_id']) ? $data['referral_id'] :'',
+            'refer_id'=>$this->generateRandomString(6),
+            'vendor_type'=> $data['type'],
             'email'      => $data['email'],
             'password'   => bcrypt($data['password']),
         ]);
@@ -235,6 +238,15 @@ class RegisterController extends Controller
 
       return response()->json($response); 
     
+    }
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-#$@!%|<>{[}]()';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
     }
     
 }

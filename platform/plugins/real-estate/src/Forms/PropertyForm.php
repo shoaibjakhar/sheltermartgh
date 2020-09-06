@@ -12,6 +12,7 @@ use Botble\RealEstate\Enums\PropertyTypeEnum;
 use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Property;
+use Botble\Vendor\Models\Vendor;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\FeatureInterface;
@@ -100,7 +101,10 @@ class PropertyForm extends FormAbstract
         if ($this->getModel()) {
             $selectedFeatures = $this->getModel()->features()->pluck('re_features.id')->all();
         }
-
+        $property=$this->getModel();
+        if($property) {
+            $vendor=Vendor::find($property->author_id);
+        }
         $features = $this->featureRepository->allBy([], [], ['re_features.id', 're_features.name']);
 
         $this
@@ -205,7 +209,7 @@ class PropertyForm extends FormAbstract
                 'html' => '</div>',
             ])
             ->add('rowOpen2', 'html', [
-                'html' => '<div class="row">',
+                'html' => '<div class="row" >',
             ])
             ->add('price', 'text', [
                 'label'      => trans('plugins/real-estate::property.form.price'),
@@ -243,8 +247,24 @@ class PropertyForm extends FormAbstract
             ])
             ->add('rowClose2', 'html', [
                 'html' => '</div>',
-            ])
-            ->add('never_expired', 'onOff', [
+            ]);
+            if(isset($vendor) && $vendor->vendor_type=='landlord') 
+            {
+                $this->add('confirm_document', 'file', [
+                    'label' => __('Confirm Property Document'),
+                    'label_attr' => ['class' => 'control-label'],
+                    'attr' => ['multiple'=>'true','required','id'=>'document'],
+                ]);
+
+                $this->add('rowOpen3', 'html', [
+                    'html' => '<div class="row quote-imgs-thumbs quote-imgs-thumbs--hidden" id="img_preview">',
+                ]);
+                $this->add('rowClose3', 'html', [
+                    'html' => '</div>',
+                ]);
+               
+            }
+            $this->add('never_expired', 'onOff', [
                 'label'         => __('Never expired?'),
                 'label_attr'    => ['class' => 'control-label'],
                 'default_value' => true,

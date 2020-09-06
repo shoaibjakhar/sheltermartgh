@@ -41,4 +41,9 @@ interface MediaFileInterface extends RepositoryInterface
      * @return bool
      */
     public function emptyTrash();
+    /**
+     * @return array
+     */
+    public function getWhere();
+       
 }

@@ -174,6 +174,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'icon'        => null,
                     'url'         => route('category.index'),
                     'permissions' => ['category.index'],
+                ])
+                ->registerItem([
+                    'id'          => 'cms-plugins-vendor-landlord-item2',
+                    'priority'    => 2,
+                    'parent_id'   => 'cms-plugins-vendor-landlord',
+                    'name'        => _('Property list'),
+                    'icon'        => null,
+                    'url'         => route('landlord.property'),
+                    'permissions' => ['landlord.property'],
                 ]);
 
         });

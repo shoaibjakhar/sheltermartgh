@@ -41,4 +41,31 @@ return [
         'parent_flag' => 'package.index',
     ],
 
+    [
+        'name' => 'Landlords',
+        'flag' => 'landlord.index',
+    ],
+    [
+        'name'        => 'Create',
+        'flag'        => 'landlord.create',
+        'parent_flag' => 'landlord.index',
+    ],
+    [
+        'name'        => 'Edit',
+        'flag'        => 'landlord.edit',
+        'parent_flag' => 'landlord.index',
+    ],
+    [
+        'name'        => 'Delete',
+        'flag'        => 'landlord.destroy',
+        'parent_flag' => 'landlord.index',
+    ],
+    [
+        'name'        => 'property',
+        'flag'        => 'landlord.property',
+        'flag'        => 'landlord.property',
+        'parent_flag' => 'landlord.index',
+    
+        
+    ]
 ];

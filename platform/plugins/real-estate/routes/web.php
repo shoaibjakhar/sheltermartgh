@@ -14,9 +14,13 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             'uses' => 'RealEstateController@postSettings',
         ]);
 
+        Route::get('landlord/property',[
+                'as'         => 'landlord.property',
+                'uses'       => 'PropertyController@getLandProperty',
+                'permission' => 'landlord.property',
+            ]);
         Route::group(['prefix' => 'properties', 'as' => 'property.'], function () {
             Route::resource('', 'PropertyController')->parameters(['' => 'property']);
-
             Route::delete('items/destroy', [
                 'as'         => 'deletes',
                 'uses'       => 'PropertyController@deletes',

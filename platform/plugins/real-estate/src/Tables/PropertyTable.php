@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Tables;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Models\Property;
+use Botble\Vendor\Models\Vendor;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\Table\Abstracts\TableAbstract;
 use Html;
@@ -14,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\Rule;
 use Throwable;
 use Yajra\DataTables\DataTables;
-
+use Botble\Media\Repositories\Interfaces\MediaFileInterface;
 class PropertyTable extends TableAbstract
 {
 
@@ -27,6 +28,8 @@ class PropertyTable extends TableAbstract
      * @var bool
      */
     protected $hasFilter = true;
+    protected $fileRepository;
+    protected $propertyType=null;
 
     /**
      * TagTable constructor.
@@ -37,9 +40,12 @@ class PropertyTable extends TableAbstract
     public function __construct(
         DataTables $table,
         UrlGenerator $urlGenerator,
-        PropertyInterface $propertyRepository
+        PropertyInterface $propertyRepository,
+        MediaFileInterface $fileRepository
+
     ) {
         $this->repository = $propertyRepository;
+        $this->fileRepository=$fileRepository;
         $this->setOption('id', 'table-plugins-real-estate-property');
         parent::__construct($table, $urlGenerator);
     }
@@ -59,6 +65,46 @@ class PropertyTable extends TableAbstract
             })
             ->editColumn('image', function ($item) {
                 return Html::image(get_object_image($item->image, 'thumb'), $item->name, ['width' => 50]);
+            })
+            ->editColumn('document', function ($item) {
+                $documents=json_decode($item->document);
+                $html='';
+                if($documents){
+                    foreach ( $documents as $key => $value) {
+                    $files=$this->fileRepository->getWhere(['id'=>$value]);
+                    $type=explode('/',$files->mime_type);
+                    if($type[0]=='application')
+                    {
+                        $html.=anchor_link(route('media.download', 'file='.$files->id), $files->name.'.'.$type[1]).'<br>';
+                    }
+                    else
+                    {
+                        $html.='<a href="'.route('media.download', 'file='.$files->id).'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
+                    }    
+                    }
+                    return $html;
+                }
+                return Html::image(get_object_image('', 'thumb'), 'avatar', ['width' => 50]);
+            })
+            ->editColumn('confirm_documnet', function ($item) {
+                $documents=json_decode($item->confirm_documnet);
+                $html='';
+                if($documents){
+                    foreach ( $documents as $key => $value) {
+                    $files=$this->fileRepository->getWhere(['id'=>$value]);
+                    $type=explode('/',$files->mime_type);
+                    if($type[0]=='application')
+                    {
+                        $html.=anchor_link(route('media.download', 'file='.$files->id), $files->name.'.'.$type[1]).'<br>';
+                    }
+                    else
+                    {
+                        $html.='<a href="'.route('media.download', 'file='.$files->id).'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
+                    }    
+                    }
+                    return $html;
+                }
+                return Html::image(get_object_image('', 'thumb'), 'avatar', ['width' => 50]);
             })
             ->editColumn('checkbox', function ($item) {
                 return table_checkbox($item->id);
@@ -84,6 +130,10 @@ class PropertyTable extends TableAbstract
      * @return \Illuminate\Database\Query\Builder|Builder
      * @since 2.1
      */
+    public function setPrivateType($propertyType)
+    {
+        $this->propertyType=$propertyType;
+    }
     public function query()
     {
         $model = $this->repository->getModel();
@@ -91,10 +141,18 @@ class PropertyTable extends TableAbstract
             're_properties.id',
             're_properties.name',
             're_properties.images',
+            're_properties.document',
+            're_properties.confirm_documnet',
             're_properties.status',
             're_properties.moderation_status',
         ]);
-
+        if($this->propertyType)
+        {
+            $query->join('vendors',function($join){
+                $join->on('vendors.id','=','re_properties.author_id');
+            });
+            $query->where('vendors.vendor_type','landlord');
+        }  
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model));
     }
 
@@ -123,6 +181,23 @@ class PropertyTable extends TableAbstract
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
+            'document'              => [
+                'name'  => 're_properties.document',
+                'title' => _('document'),
+                'width'      => '100px',
+                'class'      => 'no-sort',
+                'orderable'  => false,
+                'searchable' => false,
+            ],
+            'confirm_documnet'              => [
+                'name'  => 're_properties.confirm_documnet',
+                'title' => _('Confirm Documnet'),
+                'width'      => '100px',
+                'class'      => 'no-sort',
+                'orderable'  => false,
+                'searchable' => false,
+            ],
+            
             'status'            => [
                 'name'  => 're_properties.status',
                 'title' => trans('core/base::tables.status'),

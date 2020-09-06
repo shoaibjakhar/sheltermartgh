@@ -37,6 +37,14 @@ Route::group([
             'permission' => 'package.destroy',
         ]);
     });
+    Route::group(['prefix' => 'Landlords', 'as' => 'landlord.'], function () {
+        Route::resource('', 'VendorController')->parameters(['' => 'landlord']);
+        Route::delete('items/destroy', [
+            'as'         => 'deletes',
+            'uses'       => 'VendorController@deletes',
+            'permission' => 'landlord.destroy',
+        ]);
+    });
 
 });
 
@@ -135,6 +143,14 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                     'uses' => 'PublicController@getTransactions',
                 ]);
 
+                Route::get('payment_method', [
+                    'as'   => 'payment_method',
+                    'uses' => 'PublicController@getPaymentMethod',
+                ]);
+                Route::post('payment_method', [
+                    'as'   => 'payment_method',
+                    'uses' => 'PublicController@postPaymentMethod',
+                ]);
             });
 
             Route::group(['prefix' => 'ajax/vendors'], function () {
@@ -156,7 +172,7 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                 Route::post('upload-from-editor', [
                     'as'   => 'upload-from-editor',
                     'uses' => 'PublicController@postUploadFromEditor',
-                ]);
+                ]);  
             });
 
             Route::group(['prefix' => 'account/properties', 'as' => 'properties.'], function () {
@@ -166,6 +182,11 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                     'as'   => 'renew',
                     'uses' => 'PropertyController@renew',
                 ]);
+                Route::post('commission', [
+                    'as'   => 'commission',
+                    'uses' => 'PublicController@getCommession',
+                ]);
+                
             });
 
             Route::group(['prefix' => 'ajax/vendor'], function () {

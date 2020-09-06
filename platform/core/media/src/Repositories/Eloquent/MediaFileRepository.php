@@ -284,10 +284,10 @@ class MediaFileRepository extends RepositoriesAbstract implements MediaFileInter
             ],
             'select'    => [
                 'media_files.id as id',
+                'media_files.size as size',
                 'media_files.name as name',
                 'media_files.url as url',
                 'media_files.mime_type as mime_type',
-                'media_files.size as size',
                 'media_files.created_at as created_at',
                 'media_files.updated_at as updated_at',
                 'media_files.options as options',
@@ -313,8 +313,8 @@ class MediaFileRepository extends RepositoriesAbstract implements MediaFileInter
                 'condition' => [],
                 'select'    => [
                     'media_folders.id as id',
-                    'media_folders.name as name',
-                    DB::raw('NULL as url'),
+                    'media_files.name as name',
+                    'media_files.url as url',
                     DB::raw('NULL as mime_type'),
                     DB::raw('NULL as size'),
                     'media_folders.created_at as created_at',
@@ -398,5 +398,16 @@ class MediaFileRepository extends RepositoriesAbstract implements MediaFileInter
             $file->forceDelete();
         }
         return true;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    public function getWhere($params = array())
+    {
+        $files = $this->model->where($params);
+        /**
+         * @var Eloquent $files
+         */
+        return  $files->first();
     }
 }

@@ -341,6 +341,52 @@ class UserController extends BaseController
                 ->setMessage($exception->getMessage());
         }
     }
+    /**
+     * @param $id
+     * @param AvatarRequest $request
+     * @param ThumbnailService $thumbnailService
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    
+    public function postIdcard($id, AvatarRequest $request, ThumbnailService $thumbnailService, BaseHttpResponse $response)
+    {
+        try {
+            $user = $this->userRepository->findOrFail($id);
+
+            $result = RvMedia::handleUpload($request->file('idcard_file'), 0, 'users');
+
+            if ($result['error'] != false) {
+                return $response->setError()->setMessage($result['message']);
+            }
+
+            $avatarData = json_decode($request->input('idcard_data'));
+
+            $file = $result['data'];
+
+            $thumbnailService
+                ->setImage(RvMedia::getRealPath($file->url))
+                ->setSize((int)$avatarData->width, (int)$avatarData->height)
+                ->setCoordinates((int)$avatarData->x, (int)$avatarData->y)
+                ->setDestinationPath(File::dirname($file->url))
+                ->setFileName(File::name($file->url) . '.' . File::extension($file->url))
+                ->save('crop');
+
+            $this->fileRepository->forceDelete(['id' => $user->avatar_id]);
+
+            $user->idcard_id = $file->id;
+
+            $this->userRepository->createOrUpdate($user);
+
+            return $response
+                ->setMessage(trans('core/acl::users.update_avatar_success'))
+                ->setData(['url' => RvMedia::url($file->url)]);
+        } catch (Exception $exception) {
+            return $response
+                ->setError()
+                ->setMessage($exception->getMessage());
+        }
+    }
 
     /**
      * @param string $theme

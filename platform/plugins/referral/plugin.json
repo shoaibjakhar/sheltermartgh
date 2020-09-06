@@ -1,0 +1,9 @@
+{
+    "name": "Referral Management",
+    "namespace": "Botble\\Referral\\",
+    "provider": "Botble\\Referral\\Providers\\ReferralServiceProvider",
+    "author": "Pakistani Delevelopers",
+    "url": "https://botble.com",
+    "version": "1.1",
+    "description": "Manage Referral Commission"
+}

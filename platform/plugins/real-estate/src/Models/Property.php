@@ -39,6 +39,8 @@ class Property extends BaseModel
         'content',
         'location',
         'images',
+        'document',
+        'confirm_documnet',
         'project_id',
         'number_bedroom',
         'number_bathroom',

@@ -8,6 +8,7 @@ use Botble\RealEstate\Models\Property;
 use Botble\Vendor\Forms\Fields\CustomEditorField;
 use Botble\Vendor\Forms\Fields\MultipleUploadField;
 use Botble\Vendor\Http\Requests\PropertyRequest;
+use Auth;
 
 class PropertyForm extends BaseForm
 {
@@ -29,7 +30,6 @@ class PropertyForm extends BaseForm
         if (!$this->formHelper->hasCustomField('multipleUpload')) {
             $this->formHelper->addCustomField('multipleUpload', MultipleUploadField::class);
         }
-
         $this
             ->setupModel(new Property)
             ->setFormOption('template', 'plugins/vendor::forms.base')
@@ -55,5 +55,22 @@ class PropertyForm extends BaseForm
                 'label'      => __('Images'),
                 'label_attr' => ['class' => 'control-label'],
             ]);
+
+         if(Auth::guard('vendor')->user()->vendor_type=='landlord') 
+         {
+            $this->addAfter('images','document', 'file', [
+                'label' => __('Property Document'),
+                'label_attr' => ['class' => 'control-label'],
+                'attr' => ['multiple'=>'true','required','id'=>'document'],
+            ]);
+
+            $this->addAfter('document','rowOpen3', 'html', [
+                'html' => '<div class="row quote-imgs-thumbs quote-imgs-thumbs--hidden" id="img_preview">',
+            ]);
+            $this->addAfter('rowOpen3','rowClose3', 'html', [
+                'html' => '</div>',
+            ]);
+           
+        }  
     }
 }

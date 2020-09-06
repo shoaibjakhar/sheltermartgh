@@ -15,6 +15,9 @@ class BaseStatusEnum extends Enum
     public const PUBLISHED = 'published';
     public const DRAFT = 'draft';
     public const PENDING = 'pending';
+    public const BANK           = 'bank_account';
+    public const MOBILEMONEY    = 'mobile_money';
+    public const OTHER          = 'other';
 
     /**
      * @var string

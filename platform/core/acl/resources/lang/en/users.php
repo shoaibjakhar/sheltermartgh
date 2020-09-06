@@ -41,6 +41,7 @@ return [
     'read_image_failed'          => 'Failed to read the image file',
     'users'                      => 'Users',
     'update_avatar_success'      => 'Update profile image successfully!',
+    'update_idcard_success'      => 'Updated profile IDcard successfully!',
     'info'                       => [
         'title'                => 'User profile',
         'first_name'           => 'First Name',

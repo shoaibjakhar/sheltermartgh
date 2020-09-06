@@ -46,4 +46,11 @@ class MediaFileCacheDecorator extends CacheAbstractDecorator implements MediaFil
     {
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }
+     /**
+     * {@inheritDoc}
+     */
+    public function getWhere(array $params = [])
+    {
+        return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
+    }     
 }

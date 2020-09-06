@@ -7,9 +7,41 @@
       <i class="fas fa-user-circle mr-2"></i>
       <span>{{ trans('plugins/vendor::dashboard.sidebar_information') }}</span>
     </a>
-    <a href="{{ route('public.vendor.security') }}" class="list-group-item list-group-item-action bn @if (Route::currentRouteName() == 'public.vendor.security') active @endif">
+    <a href="{{ route('public.vendor.security') }}" class="list-group-item list-group-item-action bn @if (Route::currentRouteName() == 'public.vendor.security' ) active @endif">
       <i class="fas fa-user-lock mr-2"></i>
       <span>{{ trans('plugins/vendor::dashboard.sidebar_security') }}</span>
+    </a>
+    @php
+    $type="bank";
+    @endphp
+    <a href="{{ route('public.vendor.payment_method','type='.$type)}}" class="list-group-item list-group-item-action bn @if (Route::currentRouteName() == 'public.vendor.payment_method' && ($selectedtype) && $selectedtype==$type) active @endif">
+      <i class="fas fa-university mr-2"></i>
+      <span>{{ _('Bank Account') }}</span>
+      
+      @if(isset($user) && $user->bankAccount&&$user->bankAccount->status=='active')
+      <i class="fas fa-check check-blue"></i>
+      @endif
+      
+    </a>
+    @php
+    $type="mobileMoney";
+    @endphp
+    <a href="{{ route('public.vendor.payment_method','type='.$type) }}" class="list-group-item list-group-item-action bn @if (Route::currentRouteName() == 'public.vendor.payment_method'  && ($selectedtype)&&$selectedtype==$type) active @endif">
+      <i class="fas fa-mobile mr-2"></i>
+      <span>{{ _("Mobile Money") }}</span>
+      @if(isset($user)&&$user->mobileMoney&&$user->mobileMoney->status=='active')
+      <i class="fas fa-check check-blue"></i>
+      @endif
+    </a>
+    @php
+    $type="other";
+    @endphp
+    <a href="{{ route('public.vendor.payment_method','type='.$type) }}" class="list-group-item list-group-item-action bn @if (Route::currentRouteName() == 'public.vendor.payment_method' && ($selectedtype)&&$selectedtype==$type) active @endif">
+      <i class="fas fa-money-check mr-2"></i>
+      <span>{{ _("Other") }}</span>
+      @if(isset($user) && $user->otherAccount&&$user->otherAccount->status=='active')
+      <i class="fas fa-check check-blue"></i>
+      @endif
     </a>
   </div>
 </div>

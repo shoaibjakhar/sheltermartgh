@@ -15,12 +15,13 @@ class VendorTable extends TableAbstract
     /**
      * @var bool
      */
-    protected $hasActions = true;
+    protected $hasActions = false;
 
     /**
      * @var bool
      */
-    protected $hasFilter = true;
+    protected $hasFilter = false;
+    protected $vendor_type='';
 
     /**
      * VendorTable constructor.
@@ -34,12 +35,15 @@ class VendorTable extends TableAbstract
         $this->setOption('id', 'table-vendors');
         parent::__construct($table, $urlGenerator);
 
-        if (!Auth::user()->hasAnyPermission(['vendor.edit', 'vendor.destroy'])) {
+        if (Auth::user()->hasAnyPermission(['vendor.edit', 'vendor.destroy'])) {
             $this->hasOperations = false;
             $this->hasActions = false;
         }
     }
-
+    public function setPrivateType($vendor_type)
+    {
+      $this->vendor_type=$vendor_type;
+    }
     /**
      * Display ajax response.
      *
@@ -83,6 +87,7 @@ class VendorTable extends TableAbstract
     public function query()
     {
         $model = app(VendorInterface::class)->getModel();
+        if($this->vendor_type=='')
         $query = $model
             ->select([
                 'vendors.id',
@@ -91,6 +96,16 @@ class VendorTable extends TableAbstract
                 'vendors.email',
                 'vendors.created_at',
             ]);
+        else 
+        $query = $model
+            ->select([
+                'vendors.id',
+                'vendors.first_name',
+                'vendors.last_name',
+                'vendors.email',
+                'vendors.created_at',
+            ])
+            ->where('vendor_type',$this->vendor_type);
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model));
     }
 
@@ -125,18 +140,18 @@ class VendorTable extends TableAbstract
         ];
     }
 
-    /**
-     * @return array
-     *
-     * @since 2.1
-     * @throws \Throwable
-     */
-    public function buttons()
-    {
-        $buttons = $this->addCreateButton(route('vendor.create'), 'vendor.create');
+    // /**
+    //  * @return array
+    //  *
+    //  * @since 2.1
+    //  * @throws \Throwable
+    //  */
+    // public function buttons()
+    // {
+    //     $buttons = $this->addCreateButton(route('vendor.create'), 'vendor.create');
 
-        return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Vendor::class);
-    }
+    //     return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Vendor::class);
+    // }
 
     /**
      * @return array

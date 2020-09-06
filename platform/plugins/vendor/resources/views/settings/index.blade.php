@@ -14,7 +14,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-4 order-lg-12">
-                        <form id="avatar-upload-form" enctype="multipart/form-data" action="javascript:void(0)" onsubmit="return false">
+                        <form id="avatar-upload-form" enctype="multipart/form-data" action="javascript:void(0)" onsubmit="return false" >
                             <div class="avatar-upload-container">
                                 <div class="form-group">
                                     <label for="account-avatar">{{ trans('plugins/vendor::dashboard.profile-picture') }}</label>
@@ -43,7 +43,7 @@
                                 </button>
                             </div>
                         @endif
-                        <form action="{{ route('public.vendor.post.settings') }}" id="setting-form" method="POST">
+                        <form action="{{ route('public.vendor.post.settings') }}" id="setting-form" method="POST" enctype="multipart/form-data">
                         @csrf
                         <!-- Name -->
                             <div class="form-group">
@@ -65,6 +65,11 @@
                                 <label for="description">{{ trans('plugins/vendor::dashboard.description') }}</label>
                                 <textarea class="form-control" name="description" id="description" rows="3" maxlength="300" placeholder="{{ trans('plugins/vendor::dashboard.description_placeholder') }}">{{ old('description') ?? $user->description }}</textarea>
                             </div>
+                            <!-- referralID -->
+                            <div class="form-group">
+                                <label for="referral_id">{{ trans('plugins/vendor::dashboard.referral_id') }}</label>
+                                <input type="text" class="form-control" name="referral_id" id="referral_id" required value="{{ old('referral_id') ?? $user->referral_id }}" readonly="true">
+                            </div>
                             <!-- Email -->
                             <div class="form-group">
                                 <label for="email">{{ trans('plugins/vendor::dashboard.email') }}</label>
@@ -75,6 +80,21 @@
                                     <small class="f7">{{ trans('plugins/vendor::dashboard.verify_require_desc') }}<a href="{{ route('public.vendor.resend_confirmation', ['email' => $user->email]) }}" class="ml1">{{ trans('plugins/vendor::dashboard.resend') }}</a></small>
                                 @endif
                             </div>
+
+                            <!-- ID Card -->
+                                  <div class="idcard-upload-container">
+                                      <div class="form-group">
+                                          <label for="account-idcard">{{ trans('plugins/vendor::dashboard.Id-card-picture') }}</label>
+                                          <input type='file' onchange="readURL(this);" / class="form-control" name="idcard-file">
+                                          @if($user->idcard)
+                                          <img id="blah" src="{{ Storage::url( $user->idcard->url) }}" alt="your IDcard Picture"  style=" width: 80%;margin-left: 10%;margin-top: 5px;height: 150px;border: 2px solid #dcdada;" />
+                                          @endif
+                                          <img id="blah" src="" alt="your IDcard Picture"  style=" width: 80%;margin-left: 10%;margin-top: 5px;height: 150px;border: 2px solid #dcdada; display: none" />
+                                      </div>
+                                      
+                                  </div>
+
+
                             <!-- Birthday -->
                             <div class="form-group">
                                 <label for="dob">{{ trans('plugins/vendor::dashboard.birthday') }}</label>
@@ -112,6 +132,19 @@
   <script type="text/javascript" src="{{ asset('vendor/core/packages/js-validation/js/js-validation.js')}}"></script>
   {!! JsValidator::formRequest(\Botble\Vendor\Http\Requests\SettingRequest::class); !!}
   <script type="text/javascript">
+     function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $('#blah')
+                    .attr('src', e.target.result);
+                $('#blah').show();    
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
     // index => month [0-11]
     let numberDaysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
 

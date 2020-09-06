@@ -17,8 +17,7 @@ class PropertyTable extends \Botble\RealEstate\Tables\PropertyTable
     /**
      * @var bool
      */
-    public $hasCheckbox = false;
-
+    public $hasCheckbox = false; 
     /**
      * Display ajax response.
      *
@@ -35,6 +34,48 @@ class PropertyTable extends \Botble\RealEstate\Tables\PropertyTable
             })
             ->editColumn('image', function ($item) {
                 return Html::image(get_object_image($item->image, 'thumb'), $item->name, ['width' => 50]);
+            })
+            ->addColumn('document', function ($item) {
+                $documents=json_decode($item->document);
+                $html='';
+                if($documents){
+                    foreach ( $documents as $key => $value) {
+                        $files=$this->fileRepository->getWhere(['id'=>$value]);
+                        if($files->mime_type){
+                            $type=explode('/',$files->mime_type);
+                            if($type[0]=='application')
+                            {
+                                $html.=anchor_link(route('media.download', 'file='.$files->id), $files->name.'.'.$type[1]).'<br>';
+                            }
+                            else
+                            {
+                                $html.='<a href="'.route('media.download', 'file='.$files->id).'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
+                            }    
+                        }
+                    }
+                    return $html;
+
+                }    
+            })
+             ->editColumn('confirm_documnet', function ($item) {
+                $documents=json_decode($item->confirm_documnet);
+                $html='';
+                if($documents){
+                    foreach ( $documents as $key => $value) {
+                    $files=$this->fileRepository->getWhere(['id'=>$value]);
+                    $type=explode('/',$files->mime_type);
+                    if($type[0]=='application')
+                    {
+                        $html.=anchor_link(route('media.download', 'file='.$files->id), $files->name.'.'.$type[1]).'<br>';
+                    }
+                    else
+                    {
+                        $html.='<a href="'.route('media.download', 'file='.$files->id).'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
+                    }    
+                    }
+                    return $html;
+                }
+                return Html::image(get_object_image('', 'thumb'), 'avatar', ['width' => 50]);
             })
             ->editColumn('checkbox', function ($item) {
                 return table_checkbox($item->id);
@@ -86,6 +127,8 @@ class PropertyTable extends \Botble\RealEstate\Tables\PropertyTable
                 're_properties.id',
                 're_properties.name',
                 're_properties.images',
+                're_properties.document',
+                're_properties.confirm_documnet',
                 're_properties.created_at',
                 're_properties.status',
                 're_properties.moderation_status',
