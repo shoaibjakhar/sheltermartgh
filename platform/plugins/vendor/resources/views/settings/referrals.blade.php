@@ -77,11 +77,11 @@
                       <div class="col-md-8">
                         <div class="form-group">
                           <label>{{ trans('plugins/vendor::dashboard.share_referral_link') }}</label>
-                          <input type="text" name="" class="form-control" readonly="true" value="{{$referral_link}}">
+                          <input type="text" name="referral_link" id="referral_link" class="form-control" readonly="true" value="{{$referral_link}}">
                         </div>
                       </div>
                       <div class="col-md-3">
-                        <input type="button" class="btn btn-info" value="{{ trans('plugins/vendor::dashboard.copy_link') }}">
+                        <input type="button" class="btn btn-info" value="{{ trans('plugins/vendor::dashboard.copy_link') }}" onclick="copyToClipboard(this)">
                       </div>
                     </form>
                   </div>
@@ -93,4 +93,13 @@
       </div>
     </div>
   </div>
+  {{-- this is new comment --}}
+  <script type="text/javascript">
+    function copyToClipboard(el) {
+        document.getElementById('referral_link').select();
+        document.execCommand('copy');
+        el.value='Copied';
+    }
+  </script>
+  {{-- End of new comment--}}
 @endsection

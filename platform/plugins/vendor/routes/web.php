@@ -137,6 +137,10 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                     'as'   => 'referral_commission',
                     'uses' => 'PublicController@getReferralCommission',
                 ]);
+                Route::get('download', [
+                    'as'   => 'download',
+                    'uses' => 'PropertyController@download',
+                ]);
 
                 Route::get('transactions', [
                     'as'   => 'transactions',
@@ -185,6 +189,10 @@ if (defined('THEME_MODULE_SCREEN_NAME')) {
                 Route::post('commission', [
                     'as'   => 'commission',
                     'uses' => 'PublicController@getCommession',
+                ]);
+                Route::get('download', [
+                    'as'   => 'download',
+                    'uses' => 'PropertyController@download',
                 ]);
                 
             });

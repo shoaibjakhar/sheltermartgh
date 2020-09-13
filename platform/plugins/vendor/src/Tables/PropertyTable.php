@@ -45,11 +45,11 @@ class PropertyTable extends \Botble\RealEstate\Tables\PropertyTable
                             $type=explode('/',$files->mime_type);
                             if($type[0]=='application')
                             {
-                                $html.=anchor_link(route('media.download', 'file='.$files->id), $files->name.'.'.$type[1]).'<br>';
+                                $html.=anchor_link(url('account/properties/download').'?file='.$files->id, $files->name.'.'.$type[1]).'<br>';
                             }
                             else
                             {
-                                $html.='<a href="'.route('media.download', 'file='.$files->id).'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
+                                $html.='<a href="'.url('account/properties/download').'?file='.$files->id.'" >'.Html::image(get_object_image($files->url, 'thumb'), $files->name, ['width' => 50]).'</a>';
                             }    
                         }
                     }
@@ -162,6 +162,10 @@ class PropertyTable extends \Botble\RealEstate\Tables\PropertyTable
     {
         $columns = parent::columns();
         Arr::forget($columns, 'author_id');
+
+        if(auth()->guard('vendor')->user()->vendor_type!='landlord'){
+            Arr::forget($columns, ['document','confirm_documnet']);
+        }
 
         $columns['expire_date'] = [
             'name'  => 'jb_jobs.expire_date',

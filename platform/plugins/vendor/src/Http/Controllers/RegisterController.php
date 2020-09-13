@@ -158,7 +158,7 @@ class RegisterController extends Controller
 
         event(new Registered($vendor = $this->create($request->input())));
 
-        if (!setting('verify_account_email', config('plugins.vendor.general.verify_email'))) {
+        if (setting('verify_account_email', config('plugins.vendor.general.verify_email'))) {
             $this->sendConfirmationToUser($vendor);
             return $this->registered($request, $vendor)
                 ?: $response->setNextUrl($this->redirectPath())->setMessage(trans('plugins/vendor::vendor.confirmation_info'));
@@ -197,6 +197,14 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+
+        //here is update 
+        if($data['referral_id'])
+        {
+            if(!$this->vendorRepository->getModel()->where('refer_id',$data['referral_id'])->first())
+                $data['referral_id']='';
+        }
+        //end of update code
         return $this->vendorRepository->create([
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],

@@ -47,7 +47,7 @@
                           <td>{{ $commisItem->property->name }}</td>
 
                           @if($commisItem->vendor->id==auth()->guard('vendor')->user()->id)
-                          <td>{{ $commisItem->client_commission }}</td>
+                          <td>{{ $commisItem->vendor_commission }}</td>
                           @else
                           <td>0</td>
                           @endif
@@ -60,9 +60,9 @@
                           @endif
                             
                           @if($commisItem->vendor->id!=auth()->guard('vendor')->user()->id)
-                          <td>{{ $commisItem->vendor_commission }}</td>
+                          <td>{{ $commisItem->client_commission }}</td>
                           @else
-                          <td>{{ ($parent)?$commisItem->vendor_commission:0 }}</td>
+                          <td>{{ ($parent)?$commisItem->client_commission:0 }}</td>
                           <!-- <td>{{   $commisItem->vendor_commission }}</td> -->
                           @endif
                           <td>

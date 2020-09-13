@@ -464,14 +464,14 @@ class PublicController extends Controller
      */
     public function postUpload(Request $request, BaseHttpResponse $response)
     {
-        echo "Requeat all === "; pre($request->all());
-        // $validator = Validator::make($request->all(), [
-        //     'file.0' => 'required|image|mimes:jpg,jpeg,png',
-        // ]);
+       
+        $validator = Validator::make($request->all(), [
+            'file.0' => 'required|image|mimes:jpg,jpeg,png',
+        ]);
 
-        // if ($validator->fails()) {
-        //     return $response->setError()->setMessage($validator->getMessageBag()->first());
-        // }
+        if ($validator->fails()) {
+            return $response->setError()->setMessage($validator->getMessageBag()->first());
+        }
 
         $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'vendors');
 

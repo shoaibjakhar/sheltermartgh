@@ -596,6 +596,25 @@ class MediaController extends Controller
      */
     public function download(Request $request)
     {
+        if($request->get('file'))
+        {
+            $id=$request->get('file');
+            $file = $this->fileRepository->getFirstByWithTrash(['id' => $id]);
+            if (!empty($file) && $file->type != 'video') {
+                $filePath = RvMedia::getRealPath($file->url);
+                if (!RvMedia::isUsingCloud()) {
+                    if (!File::exists($filePath)) {
+                        return RvMedia::responseError(trans('core/media::media.file_not_exists'));
+                    }
+                    return response()->download($filePath);
+                }
+
+                return response()->make(file_get_contents(str_replace('https://', 'http://', $filePath)), 200, [
+                    'Content-type'        => $file->mime_type,
+                    'Content-Disposition' => 'attachment; filename="' . $file->name . '.' . File::extension($file->url) . '"',
+                ]);
+            }
+        }  
         $items = $request->input('selected', []);
 
         if (count($items) == 1 && $items['0']['is_folder'] == 'false') {

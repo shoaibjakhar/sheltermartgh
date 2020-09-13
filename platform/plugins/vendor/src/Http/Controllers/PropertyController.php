@@ -24,6 +24,10 @@ use Illuminate\Routing\Controller;
 use SeoHelper;
 use Botble\Media\Repositories\Interfaces\MediaFileInterface;
 use RvMedia;
+use Botble\Media\Supports\Zipper;
+use File;
+use Botble\Media\Repositories\Interfaces\MediaFolderInterface;
+use Botble\Media\Repositories\Interfaces\MediaSettingInterface;
 
 class PropertyController extends Controller
 {
@@ -41,7 +45,15 @@ class PropertyController extends Controller
      * @var VendorActivityLogInterface
      */
     protected $activityLogRepository;
+     /**
+     * @var MediaFileInterface
+     */
     protected $fileRepository;
+
+    /**
+     * @var MediaFolderInterface
+     */
+    protected $folderRepository;
 
     /**
      * PublicController constructor.
@@ -55,12 +67,14 @@ class PropertyController extends Controller
         VendorInterface $vendorRepository,
         PropertyInterface $propertyRepository,
         VendorActivityLogInterface $vendorActivityLogRepository,
-        MediaFileInterface $fileRepository
+        MediaFileInterface $fileRepository,
+        MediaFolderInterface $folderRepository
     ) {
         $this->vendorRepository = $vendorRepository;
         $this->propertyRepository = $propertyRepository;
         $this->activityLogRepository = $vendorActivityLogRepository;
         $this->fileRepository=$fileRepository;
+        $this->folderRepository = $folderRepository;
 
         Assets::setConfig($config->get('plugins.vendor.assets'));
     }
@@ -298,5 +312,94 @@ class PropertyController extends Controller
         $account->save();
 
         return $response->setMessage(__('Renew property successfully'));
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse|\Illuminate\Http\Response|BinaryFileResponse
+     * @throws Exception
+     */
+    public function download(Request $request)
+    {
+        if($request->get('file'))
+        {
+            $id=$request->get('file');
+            $file = $this->fileRepository->getFirstByWithTrash(['id' => $id]);
+            if (!empty($file) && $file->type != 'video') {
+                $filePath = RvMedia::getRealPath($file->url);
+                if (!RvMedia::isUsingCloud()) {
+                    if (!File::exists($filePath)) {
+                        return RvMedia::responseError(trans('core/media::media.file_not_exists'));
+                    }
+                    return response()->download($filePath);
+                }
+
+                return response()->make(file_get_contents(str_replace('https://', 'http://', $filePath)), 200, [
+                    'Content-type'        => $file->mime_type,
+                    'Content-Disposition' => 'attachment; filename="' . $file->name . '.' . File::extension($file->url) . '"',
+                ]);
+            }
+        }  
+        $items = $request->input('selected', []);
+
+        if (count($items) == 1 && $items['0']['is_folder'] == 'false') {
+            $file = $this->fileRepository->getFirstByWithTrash(['id' => $items[0]['id']]);
+            if (!empty($file) && $file->type != 'video') {
+                $filePath = RvMedia::getRealPath($file->url);
+                if (!RvMedia::isUsingCloud()) {
+                    if (!File::exists($filePath)) {
+                        return RvMedia::responseError(trans('core/media::media.file_not_exists'));
+                    }
+                    return response()->download($filePath);
+                }
+
+                return response()->make(file_get_contents(str_replace('https://', 'http://', $filePath)), 200, [
+                    'Content-type'        => $file->mime_type,
+                    'Content-Disposition' => 'attachment; filename="' . $file->name . '.' . File::extension($file->url) . '"',
+                ]);
+            }
+        } else {
+            $fileName = RvMedia::getRealPath('download-' . now(config('app.timezone'))->format('Y-m-d-h-i-s') . '.zip');
+            $zip = new Zipper;
+            $zip->make($fileName);
+            foreach ($items as $item) {
+                $id = $item['id'];
+                if ($item['is_folder'] == 'false') {
+                    $file = $this->fileRepository->getFirstByWithTrash(['id' => $id]);
+                    if (!empty($file) && $file->type != 'video') {
+                        $filePath = RvMedia::getRealPath($file->url);
+                        if (!RvMedia::isUsingCloud()) {
+                            if (File::exists($filePath)) {
+                                $zip->add($filePath);
+                            }
+                        } else {
+                            $zip->addString(File::basename($file), file_get_contents(str_replace('https://', 'http://', $filePath)));
+                        }
+                    }
+                } else {
+                    $folder = $this->folderRepository->getFirstByWithTrash(['id' => $id]);
+                    if (!empty($folder)) {
+                        if (!RvMedia::isUsingCloud()) {
+                            $zip->add(RvMedia::getRealPath($this->folderRepository->getFullPath($folder->id)));
+                        } else {
+                            $allFiles = Storage::allFiles($this->folderRepository->getFullPath($folder->id));
+                            foreach ($allFiles as $file) {
+                                $zip->addString(File::basename($file), file_get_contents(str_replace('https://', 'http://', RvMedia::getRealPath($file))));
+                            }
+                        }
+                    }
+                }
+            }
+
+            $zip->close();
+
+            if (File::exists($fileName)) {
+                return response()->download($fileName)->deleteFileAfterSend();
+            }
+
+            return RvMedia::responseError(trans('core/media::media.download_file_error'));
+        }
+
+        return RvMedia::responseError(trans('core/media::media.can_not_download_file'));
     }
 }
